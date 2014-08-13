@@ -19,3 +19,15 @@
 *.exe
 *.out
 *.app
+
+# VS files
+*.ilk
+*.tlog
+*.ipch
+*.pch
+*.suo
+*.sdf
+*.log
+*.pdb
+*.idb
+*.opensdf
