@@ -1,7 +1,6 @@
 #ifndef THREAD_UTIL
 #define THREAD_UTIL
 
-#include <windows.h>
 #include <functional>
 #include <chrono>
 #include <ctime>
@@ -63,45 +62,5 @@ public:
         return *this;
     }
 };
-
-class environment {
-    environment(environment const &);
-    environment & operator=(environment const &);
-
-    TP_CALLBACK_ENVIRON m_value;
-
-public:
-
-    environment() throw() {
-        InitializeThreadpoolEnvironment(&m_value);
-    }
-
-    ~environment() throw() {
-        DestroyThreadpoolEnvironment(&m_value);
-    }
-
-    PTP_CALLBACK_ENVIRON get() throw() {
-        return &m_value;
-    }
-};
-
-inline DWORD absolute_to_relative_milli(const chrono::system_clock::time_point& abs_time) {
-    using namespace std::chrono;
-
-    time_t present;
-
-    // convert to time_point:
-    time_t future = system_clock::to_time_t(abs_time);
-    time(&present);
-
-    return (DWORD)(1000 * difftime(future, present));
-}
-
-inline DWORD relative_to_relative_milli(const chrono::system_clock::duration& rel_time) {
-    using namespace std::chrono;
-    typedef std::chrono::duration<DWORD, std::ratio<1, 1000>> milli;
-
-    return duration_cast<milli>(rel_time).count();
-}
 
 #endif

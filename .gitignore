@@ -31,3 +31,8 @@
 *.pdb
 *.idb
 *.opensdf
+
+build/*
+CMakeFiles/*
+CMakeCache.txt
+*.cmake

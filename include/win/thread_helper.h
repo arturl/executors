@@ -13,6 +13,39 @@
 
 using namespace std;
 
+class environment {
+    environment(environment const &);
+    environment & operator=(environment const &);
+
+    TP_CALLBACK_ENVIRON m_value;
+
+public:
+
+    environment() throw() {
+        InitializeThreadpoolEnvironment(&m_value);
+    }
+
+    ~environment() throw() {
+        DestroyThreadpoolEnvironment(&m_value);
+    }
+
+    PTP_CALLBACK_ENVIRON get() throw() {
+        return &m_value;
+    }
+};
+
+inline DWORD absolute_to_relative_milli(const chrono::system_clock::time_point& abs_time) {
+    using namespace std::chrono;
+    return static_cast<DWORD>(std::max(0LL, duration_cast<milliseconds>(abs_time - system_clock::now()).count()));
+}
+
+inline DWORD relative_to_relative_milli(const chrono::system_clock::duration& rel_time) {
+    using namespace std::chrono;
+    typedef std::chrono::duration<DWORD, std::ratio<1, 1000>> milli;
+
+    return duration_cast<milli>(rel_time).count();
+}
+
 namespace details {
 
 /* For passing std::function as a void pointer */
@@ -91,11 +124,16 @@ public:
         SetThreadpoolThreadMaximum(m_pool.get(), num_threads);
     }
 
+    void wait()
+    {
+        if (m_unfinished_task_count > 0) { 
+            std::unique_lock<std::mutex> lk(all_tasks_finished_mutex);
+            all_tasks_finished_cv.wait(lk, [this]{ return m_unfinished_task_count == 0; });
+        }
+    }
     ~functional_pool()
     {
-        std::unique_lock<std::mutex> lk(all_tasks_finished_mutex);
-        all_tasks_finished_cv.wait(lk, [this]{ return m_unfinished_task_count == 0; });
-
+        wait();
         if (cg.get())
             CloseThreadpoolCleanupGroupMembers(cg.get(), false, nullptr);
     }
@@ -134,6 +172,10 @@ private:
     }
 
 public:
+    ~functional_timer_pool()
+    {
+        wait();
+    }
     functional_timer_pool() : functional_pool(), t_queue(CreateTimerQueue()) {} // default threadpool with timer
 
     functional_timer_pool(int num_threads) : functional_pool(num_threads), t_queue(CreateTimerQueue()) {}
