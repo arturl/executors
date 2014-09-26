@@ -14,6 +14,8 @@ FIND_PACKAGE(Threads)
 if (APPLE)
 	add_definitions(-DEXTR_DEFINE_MISSING_STD_TYPES=1)
 	set(EXTR_PLATFORM_DIR ${EXTR_DIR}/include/gcd)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	set(EXTR_PLATFORM_DIR ${EXTR_DIR}/include/win)
 endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")

@@ -6,6 +6,8 @@ class thread_pool {
 private:
     shared_ptr<details::functional_timer_pool> pool;
 public:
+    thread_pool() : pool(new details::functional_timer_pool()) {
+    }
     explicit thread_pool(int N) : pool(new details::functional_timer_pool(N)) {
     }
 

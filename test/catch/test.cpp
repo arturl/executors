@@ -10,6 +10,8 @@
 #include <thread_pool.h>
 #include <utils/semaphore.h>
 
+const float time_delta = 0.9f;
+
 SCENARIO("thread_pool is not serial", "[thread_pool][executor]"){
     GIVEN("a thread_pool"){
         WHEN("two tasks use semaphores"){
@@ -270,8 +272,8 @@ SCENARIO("thread_pool in relative time", "[time][thread_pool][executor]"){
                 auto actual = duration_cast<milliseconds>(finish-start).count();
                 REQUIRE(actual > 0);
                 auto ratio = float(required) / actual;
-                REQUIRE(ratio < 1.05);
-                REQUIRE(ratio > 0.95);
+                REQUIRE(ratio < (1.0 + time_delta));
+                REQUIRE(ratio > (1.0 - time_delta));
             }
         }
     }
@@ -303,11 +305,11 @@ SCENARIO("thread_pool in absolute time", "[time][thread_pool][executor]"){
             THEN("must must run at the specified time"){
                 auto required = duration_cast<milliseconds>(duration).count();
                 REQUIRE(start < finish);
-                auto actual = duration_cast<milliseconds>(finish-start).count();                
+                auto actual = duration_cast<milliseconds>(finish-start).count();
                 REQUIRE(actual > 0);
                 auto ratio = float(required) / actual;
-                REQUIRE(ratio < 1.05);
-                REQUIRE(ratio > 0.95);
+                REQUIRE(ratio < (1.0 + time_delta));
+                REQUIRE(ratio > (1.0 - time_delta));
             }
         }
     }
