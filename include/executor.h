@@ -7,6 +7,20 @@
 #include <memory>
 #include <new>
 
+#if EXTR_DEFINE_MISSING_STD_TYPES
+namespace std {
+
+template<class T, class... AN>
+std::unique_ptr<T> make_unique(AN&&... an){
+    return std::unique_ptr<T>(new T(std::forward<AN>(an)...));
+}
+
+template<int Size>
+using aligned_storage_t = typename aligned_storage<Size>::type;
+
+}
+#endif
+
 using namespace std;
 
 namespace detail

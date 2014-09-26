@@ -13,6 +13,27 @@
 
 using namespace std;
 
+class environment {
+    environment(environment const &);
+    environment & operator=(environment const &);
+
+    TP_CALLBACK_ENVIRON m_value;
+
+public:
+
+    environment() throw() {
+        InitializeThreadpoolEnvironment(&m_value);
+    }
+
+    ~environment() throw() {
+        DestroyThreadpoolEnvironment(&m_value);
+    }
+
+    PTP_CALLBACK_ENVIRON get() throw() {
+        return &m_value;
+    }
+};
+
 namespace details {
 
 /* For passing std::function as a void pointer */
